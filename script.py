@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 
 # Ruta del archivo SQLite en Google Colab
-DB_PATH = "./database.sqlite"  # Asegúrate de subir la base de datos a /content/
+DB_PATH = "./db/database.sqlite"  # Asegúrate de subir la base de datos a /content/
 
 # Conectar a la base de datos
 conn = sqlite3.connect(DB_PATH)
