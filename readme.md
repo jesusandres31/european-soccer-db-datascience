@@ -5,3 +5,5 @@ python -m venv .venv
 pip install pandas
 
 python .\script.py
+
+deactivate
