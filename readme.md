@@ -4,6 +4,6 @@ python -m venv .venv
 
 pip install pandas
 
-python .\script.py
+python .\scripts\show_tables.py
 
 deactivate

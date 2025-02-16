@@ -28,14 +28,5 @@ tables = get_tables()
 print("Tablas disponibles en la base de datos:")
 print(tables)
 
-# Cargar una tabla de ejemplo (por defecto 'Player')
-table_name = "Player"  # Puedes cambiar esto por otra tabla
-if table_name in tables:
-    df = load_table(table_name)
-    print(f"Mostrando las primeras filas de la tabla {table_name}:")
-    print(df.head())
-else:
-    print(f"La tabla {table_name} no está en la base de datos.")
-
 # Cerrar conexión
 conn.close()

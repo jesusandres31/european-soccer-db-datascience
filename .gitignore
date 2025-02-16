@@ -1,2 +1,10 @@
+# virtual env
 .venv
-db
+
+# Ignorar todo dentro de db y output
+/db/*
+/output/*
+
+# Excluir archivos .gitkeep de ser ignorados
+!/db/.gitkeep
+!/output/.gitkeep
