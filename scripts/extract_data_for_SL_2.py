@@ -4,7 +4,6 @@ import sqlite3
 import pandas as pd
 
 # Conectar a la base de datos SQLite
-# Ruta de la base de datos SQLite
 DB_PATH = "./db/database.sqlite"
 OUTPUT_DIR = "./output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Crear carpeta de salida si no existe
@@ -14,7 +13,7 @@ conn = sqlite3.connect(DB_PATH)
 # 1. Cargar la tabla Match con solo las columnas necesarias
 query_match = """
 SELECT 
-    m.id,
+    m.id AS id_x,
     m.country_id, 
     m.league_id, 
     m.season, 
@@ -33,20 +32,12 @@ query_country = "SELECT id, name FROM Country"
 df_country = pd.read_sql(query_country, conn)
 df_match = df_match.merge(df_country, left_on="country_id", right_on="id", how="left")
 
-# Verificar y eliminar columna 'id' si existe
-if "id" in df_match.columns:
-    df_match.drop(columns=["id"], inplace=True)
-
-df_match.rename(columns={"name": "country_name"}, inplace=True)
+df_match.rename(columns={"name": "country_name", "id": "id_y"}, inplace=True)
 
 # 3. Reemplazar league_id por el nombre de la liga (League)
 query_league = "SELECT id, name FROM League"
 df_league = pd.read_sql(query_league, conn)
 df_match = df_match.merge(df_league, left_on="league_id", right_on="id", how="left")
-
-# Verificar y eliminar columna 'id' si existe
-if "id" in df_match.columns:
-    df_match.drop(columns=["id"], inplace=True)
 
 df_match.rename(columns={"name": "league_name"}, inplace=True)
 
@@ -59,14 +50,12 @@ df_match = df_match.merge(
     df_team, left_on="home_team_api_id", right_on="team_api_id", how="left"
 )
 df_match.rename(columns={"team_long_name": "home_team"}, inplace=True)
-df_match.drop(columns=["team_api_id"], inplace=True)
 
 # Unir por away_team_api_id
 df_match = df_match.merge(
     df_team, left_on="away_team_api_id", right_on="team_api_id", how="left"
 )
 df_match.rename(columns={"team_long_name": "away_team"}, inplace=True)
-df_match.drop(columns=["team_api_id"], inplace=True)
 
 # 5. Obtener los últimos registros de Team_Attributes por equipo
 query_team_attributes = """
@@ -112,30 +101,33 @@ df_team_attr = df_team_attr[cols_team_attr]
 df_match = df_match.merge(
     df_team_attr, left_on="home_team_api_id", right_on="team_api_id", how="left"
 )
-df_match.drop(columns=["team_api_id"], inplace=True)
 df_match.rename(
-    lambda x: (
-        f"home_{x}" if x.startswith(("buildUp", "chanceCreation", "defence")) else x
-    ),
-    axis=1,
-    inplace=True,
+    lambda x: f"home_{x}" if x in cols_team_attr else x, axis=1, inplace=True
 )
 
 # Unir atributos de away_team
 df_match = df_match.merge(
     df_team_attr, left_on="away_team_api_id", right_on="team_api_id", how="left"
 )
-df_match.drop(columns=["team_api_id"], inplace=True)
 df_match.rename(
-    lambda x: (
-        f"away_{x}" if x.startswith(("buildUp", "chanceCreation", "defence")) else x
-    ),
-    axis=1,
-    inplace=True,
+    lambda x: f"away_{x}" if x in cols_team_attr else x, axis=1, inplace=True
 )
 
-# Eliminar las columnas de ID de equipo
-df_match.drop(columns=["home_team_api_id", "away_team_api_id"], inplace=True)
+# Eliminar columnas innecesarias
+df_match.drop(
+    columns=[
+        "id",
+        "id_x",
+        "id_y",
+        "country_id",
+        "league_id",
+        "home_team_api_id",
+        "away_team_api_id",
+        "team_api_id",
+    ],
+    errors="ignore",
+    inplace=True,
+)
 
 # Guardar en CSV
 output_path = f"{OUTPUT_DIR}/Match_Full.csv"
