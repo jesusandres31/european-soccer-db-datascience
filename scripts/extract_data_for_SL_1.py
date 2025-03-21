@@ -51,6 +51,19 @@ if df_team is not None and df_team_attr is not None:
     # Unir los atributos más recientes con la tabla Team
     df_merged = df_team.merge(df_team_attr_latest, on="team_api_id", how="left")
 
+    # Eliminar columnas innecesarias
+    df_merged.drop(
+        columns=[
+            "team_api_id",
+            "team_fifa_api_id_y",
+            "team_fifa_api_id_x",
+            "id_y",
+            "id_x",
+        ],
+        errors="ignore",
+        inplace=True,
+    )
+
     # Guardar el resultado en un archivo CSV
     output_path = os.path.join(OUTPUT_DIR, "Teams_Full_Latest.csv")
     df_merged.to_csv(output_path, index=False, encoding="utf-8")
@@ -61,6 +74,9 @@ else:
     print("Error al cargar las tablas.")
 
 if df_match is not None:
+    # Eliminar columnas innecesarias de la tabla Match
+    df_match.drop(columns=["id_x"], errors="ignore", inplace=True)
+
     # Guardar la tabla Match en un archivo CSV
     match_output_path = os.path.join(OUTPUT_DIR, "Match.csv")
     df_match.to_csv(match_output_path, index=False, encoding="utf-8")
