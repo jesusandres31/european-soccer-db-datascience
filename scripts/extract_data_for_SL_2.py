@@ -124,6 +124,8 @@ df_match.drop(
         "home_team_api_id",
         "away_team_api_id",
         "team_api_id",
+        "team_api_id_x",
+        "team_api_id_y",
     ],
     errors="ignore",
     inplace=True,
